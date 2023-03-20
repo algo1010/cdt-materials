@@ -47,24 +47,53 @@ class ViewController: UIViewController {
   
   var managedContext: NSManagedObjectContext!
   
+  var currentBowtie: Bowtie!
+  
   // MARK: - View Life Cycle
   override func viewDidLoad() {
     super.viewDidLoad()
     insertSampleData()
+    loadDefaultBowtie()
   }
   
   // MARK: - IBActions
   
   @IBAction func segmentedControl(_ sender: UISegmentedControl) {
-    // Add code here
+    guard let title = sender.titleForSegment(at: sender.selectedSegmentIndex) else { return }
+    let fetchRequest = Bowtie.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "%K = %@", argumentArray: [#keyPath(Bowtie.searchKey), title])
+    
+    do {
+      let bowties = try managedContext.fetch(fetchRequest)
+      currentBowtie = bowties.first
+      populate(bowtie: currentBowtie)
+    } catch {
+      print("Change bow tie with error: \(error.localizedDescription)")
+    }
   }
   
   @IBAction func wear(_ sender: UIButton) {
-    // Add code here
+    let times = currentBowtie.timesWorn
+    currentBowtie.timesWorn = times + 1
+    currentBowtie.lastWorn = Date()
+    
+    do {
+      try managedContext.save()
+      populate(bowtie: currentBowtie)
+    } catch {
+      print("Save wear info with error: \(error.localizedDescription)")
+    }
   }
   
   @IBAction func rate(_ sender: UIButton) {
-    // Add code here
+    let alert = UIAlertController(title: "New Rating", message: "Rate this bow tie", preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "Save", style: .default) { _ in
+      guard let rate = alert.textFields?.first?.text, let number = Double(rate) else { return }
+      self.updateRating(number)
+    })
+    alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+    alert.addTextField { textField in textField.keyboardType = .decimalPad }
+    present(alert, animated: true)
   }
 }
 
@@ -94,6 +123,49 @@ extension ViewController {
       try managedContext.save()
     } catch {
       print("Inset sample data with error: \(error.localizedDescription)")
+    }
+  }
+  
+  private func loadDefaultBowtie() {
+    let firstTitle = segmentedControl.titleForSegment(at: 0)!
+    let fetchRequest = Bowtie.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "%K = %@", argumentArray: [#keyPath(Bowtie.searchKey), firstTitle])
+    
+    do {
+      let bowties = try managedContext.fetch(fetchRequest)
+      currentBowtie = bowties.first
+      populate(bowtie: bowties.first!)
+    } catch {
+      print("Load default bowtie with error: \(error.localizedDescription)")
+    }
+  }
+  
+  private func populate(bowtie: Bowtie) {
+    guard let imageData = bowtie.photoData as Data?,
+          let lastWorn = bowtie.lastWorn as Date?,
+          let tintColor = bowtie.tintColor as? UIColor else {
+      return
+    }
+    imageView.image = UIImage(data: imageData)
+    nameLabel.text = bowtie.name
+    ratingLabel.text = "Rating: \(bowtie.rating)/5"
+    timesWornLabel.text = "# times worn: \(bowtie.timesWorn)"
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateStyle = .short
+    dateFormatter.timeStyle = .none
+    lastWornLabel.text =
+    "Last worn: " + dateFormatter.string(from: lastWorn)
+    favoriteLabel.isHidden = !bowtie.isFavorite
+    view.tintColor = tintColor
+  }
+  
+  private func updateRating(_ rate: Double) {
+    currentBowtie.rating = rate
+    do {
+      try managedContext.save()
+      populate(bowtie: currentBowtie)
+    } catch {
+      print("Update rating with error: \(error.localizedDescription)")
     }
   }
 }
