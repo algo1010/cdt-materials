@@ -31,6 +31,7 @@
 /// THE SOFTWARE.
 
 import UIKit
+import CoreData
 
 class ViewController: UIViewController {
   // MARK: - Properties
@@ -40,8 +41,9 @@ class ViewController: UIViewController {
     formatter.timeStyle = .medium
     return formatter
   }()
-
-  var walks: [Date] = []
+  
+  var managedContext: NSManagedObjectContext!
+  var currentDog: Dog?
 
   // MARK: - IBOutlets
   @IBOutlet var tableView: UITableView!
@@ -52,13 +54,39 @@ class ViewController: UIViewController {
     super.viewDidLoad()
 
     tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+    createDefaultDog(name: "Fido")
+  }
+  
+  private func createDefaultDog(name: String) {
+    let fetchRequest = Dog.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "%K = %@", argumentArray: [#keyPath(Dog.name), name])
+    
+    do {
+      let dogs = try managedContext.fetch(fetchRequest)
+      if dogs.count > 0 {
+        currentDog = dogs.first
+      } else {
+        currentDog = Dog(context: managedContext)
+        currentDog?.name = name
+        try managedContext.save()
+      }
+    } catch {
+      print("Create default dog with error: \(error.localizedDescription)")
+    }
   }
 }
 
 // MARK: - IBActions
 extension ViewController {
   @IBAction func add(_ sender: UIBarButtonItem) {
-    walks.append(Date())
+    let walk = Walk(context: managedContext)
+    walk.date = Date()
+    currentDog?.insertIntoWalks(walk, at: 0)
+    do {
+      try managedContext.save()
+    } catch {
+      print("Add new walk with error: \(error.localizedDescription)")
+    }
     tableView.reloadData()
   }
 }
@@ -66,21 +94,41 @@ extension ViewController {
 // MARK: UITableViewDataSource
 extension ViewController: UITableViewDataSource {
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    walks.count
+    return currentDog?.walks?.count ?? 0
   }
 
   func tableView(
     _ tableView: UITableView,
     cellForRowAt indexPath: IndexPath
   ) -> UITableViewCell {
-    let date = walks[indexPath.row]
-    let cell = tableView.dequeueReusableCell(
-      withIdentifier: "Cell", for: indexPath)
+    let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+    guard let walk = currentDog?.walks?[indexPath.row] as? Walk,
+          let date = walk.date
+    else { return cell }
     cell.textLabel?.text = dateFormatter.string(from: date)
     return cell
   }
 
   func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-    "List of Walks"
+    return "List of Walks"
+  }
+  
+  func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+    return true
+  }
+  
+  func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+    guard let walk = currentDog?.walks?[indexPath.row] as? Walk,
+          editingStyle == .delete
+    else { return }
+    
+    managedContext.delete(walk)
+    
+    do {
+      try managedContext.save()
+      tableView.deleteRows(at: [indexPath], with: .automatic)
+    } catch {
+      print("Delete walk with error: \(error.localizedDescription)")
+    }
   }
 }

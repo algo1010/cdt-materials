@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4F6B0AEC29C845F800BB2E4D /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6B0AEB29C845F800BB2E4D /* CoreDataStack.swift */; };
+		4F6B0AEF29C84E0B00BB2E4D /* Dog Walk.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4F6B0AED29C84E0B00BB2E4D /* Dog Walk.xcdatamodeld */; };
+		4F6B0AF429C85B1600BB2E4D /* Walk+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6B0AF029C85B1600BB2E4D /* Walk+CoreDataClass.swift */; };
+		4F6B0AF529C85B1600BB2E4D /* Walk+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6B0AF129C85B1600BB2E4D /* Walk+CoreDataProperties.swift */; };
+		4F6B0AF629C85B1600BB2E4D /* Dog+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6B0AF229C85B1600BB2E4D /* Dog+CoreDataClass.swift */; };
+		4F6B0AF729C85B1600BB2E4D /* Dog+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6B0AF329C85B1600BB2E4D /* Dog+CoreDataProperties.swift */; };
 		FE0EF93022FDDF4C00D0800D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE0EF92F22FDDF4C00D0800D /* AppDelegate.swift */; };
 		FE0EF93222FDDF4C00D0800D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE0EF93122FDDF4C00D0800D /* SceneDelegate.swift */; };
 		FE0EF93422FDDF4C00D0800D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE0EF93322FDDF4C00D0800D /* ViewController.swift */; };
@@ -16,6 +22,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4F6B0AEB29C845F800BB2E4D /* CoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
+		4F6B0AEE29C84E0B00BB2E4D /* Dog Walk.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Dog Walk.xcdatamodel"; sourceTree = "<group>"; };
+		4F6B0AF029C85B1600BB2E4D /* Walk+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Walk+CoreDataClass.swift"; sourceTree = "<group>"; };
+		4F6B0AF129C85B1600BB2E4D /* Walk+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Walk+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		4F6B0AF229C85B1600BB2E4D /* Dog+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dog+CoreDataClass.swift"; sourceTree = "<group>"; };
+		4F6B0AF329C85B1600BB2E4D /* Dog+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dog+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		FE0EF92C22FDDF4C00D0800D /* DogWalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DogWalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE0EF92F22FDDF4C00D0800D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FE0EF93122FDDF4C00D0800D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -61,7 +73,13 @@
 				FE0EF92F22FDDF4C00D0800D /* AppDelegate.swift */,
 				FE0EF93122FDDF4C00D0800D /* SceneDelegate.swift */,
 				FE0EF93322FDDF4C00D0800D /* ViewController.swift */,
+				4F6B0AEB29C845F800BB2E4D /* CoreDataStack.swift */,
+				4F6B0AF029C85B1600BB2E4D /* Walk+CoreDataClass.swift */,
+				4F6B0AF129C85B1600BB2E4D /* Walk+CoreDataProperties.swift */,
+				4F6B0AF229C85B1600BB2E4D /* Dog+CoreDataClass.swift */,
+				4F6B0AF329C85B1600BB2E4D /* Dog+CoreDataProperties.swift */,
 				FE0EF93522FDDF4C00D0800D /* Main.storyboard */,
+				4F6B0AED29C84E0B00BB2E4D /* Dog Walk.xcdatamodeld */,
 				FE0EF93B22FDDF4D00D0800D /* Assets.xcassets */,
 				FE0EF93D22FDDF4D00D0800D /* LaunchScreen.storyboard */,
 				FE0EF94022FDDF4D00D0800D /* Info.plist */,
@@ -161,9 +179,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F6B0AF729C85B1600BB2E4D /* Dog+CoreDataProperties.swift in Sources */,
+				4F6B0AF629C85B1600BB2E4D /* Dog+CoreDataClass.swift in Sources */,
+				4F6B0AF429C85B1600BB2E4D /* Walk+CoreDataClass.swift in Sources */,
+				4F6B0AF529C85B1600BB2E4D /* Walk+CoreDataProperties.swift in Sources */,
 				FE0EF93422FDDF4C00D0800D /* ViewController.swift in Sources */,
 				FE0EF93022FDDF4C00D0800D /* AppDelegate.swift in Sources */,
 				FE0EF93222FDDF4C00D0800D /* SceneDelegate.swift in Sources */,
+				4F6B0AEC29C845F800BB2E4D /* CoreDataStack.swift in Sources */,
+				4F6B0AEF29C84E0B00BB2E4D /* Dog Walk.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -361,6 +385,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		4F6B0AED29C84E0B00BB2E4D /* Dog Walk.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				4F6B0AEE29C84E0B00BB2E4D /* Dog Walk.xcdatamodel */,
+			);
+			currentVersion = 4F6B0AEE29C84E0B00BB2E4D /* Dog Walk.xcdatamodel */;
+			path = "Dog Walk.xcdatamodeld";
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = FE0EF92422FDDF4C00D0800D /* Project object */;
 }

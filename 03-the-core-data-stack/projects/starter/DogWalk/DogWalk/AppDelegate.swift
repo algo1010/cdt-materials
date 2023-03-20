@@ -34,6 +34,8 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
+  lazy var coreDataStack = CoreDataStack(modelName: "Dog Walk")
+  
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     true
   }
@@ -42,5 +44,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
     UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+  }
+  
+  func applicationDidEnterBackground(_ application: UIApplication) {
+    coreDataStack.saveContext()
+  }
+  
+  func applicationWillTerminate(_ application: UIApplication) {
+    coreDataStack.saveContext()
   }
 }
