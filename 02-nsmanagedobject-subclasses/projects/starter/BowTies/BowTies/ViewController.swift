@@ -31,6 +31,7 @@
 /// THE SOFTWARE.
 
 import UIKit
+import CoreData
 
 class ViewController: UIViewController {
   // MARK: - IBOutlets
@@ -43,23 +44,56 @@ class ViewController: UIViewController {
   @IBOutlet weak var favoriteLabel: UILabel!
   @IBOutlet weak var wearButton: UIButton!
   @IBOutlet weak var rateButton: UIButton!
-
+  
+  var managedContext: NSManagedObjectContext!
+  
   // MARK: - View Life Cycle
   override func viewDidLoad() {
     super.viewDidLoad()
+    insertSampleData()
   }
-
+  
   // MARK: - IBActions
-
+  
   @IBAction func segmentedControl(_ sender: UISegmentedControl) {
     // Add code here
   }
-
+  
   @IBAction func wear(_ sender: UIButton) {
     // Add code here
   }
-
+  
   @IBAction func rate(_ sender: UIButton) {
     // Add code here
+  }
+}
+
+extension ViewController {
+  private var sampleDataPath: URL? {
+    return Bundle.main.url(forResource: "SampleData", withExtension: "plist")
+  }
+  
+  private func insertSampleData() {
+    let fetchRequest = Bowtie.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "searchKey != nil")
+    
+    let count = try! managedContext.count(for: fetchRequest)
+    guard count == 0 else { return }
+    
+    guard let sampleDataPath = sampleDataPath else { return }
+    let items = try! NSArray(contentsOf: sampleDataPath, error: ())
+    
+    for item in items {
+      guard let entity = NSEntityDescription.entity(forEntityName: "Bowtie", in: managedContext) else { continue }
+      let bowtie = Bowtie(entity: entity, insertInto: managedContext)
+      let dict = item as! [String : Any]
+      bowtie.fillWithDict(dict)
+    }
+    
+    do {
+      try managedContext.save()
+    } catch {
+      print("Inset sample data with error: \(error.localizedDescription)")
+    }
   }
 }

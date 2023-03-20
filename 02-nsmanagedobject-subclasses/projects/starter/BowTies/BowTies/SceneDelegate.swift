@@ -40,6 +40,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     willConnectTo session: UISceneSession,
     options connectionOptions: UIScene.ConnectionOptions
   ) {
+    guard let vc = window?.rootViewController as? ViewController,
+          let appDelegate = UIApplication.shared.delegate as? AppDelegate
+    else { return }
+    vc.managedContext = appDelegate.persistentContainer.viewContext
   }
 
   func sceneDidEnterBackground(_ scene: UIScene) {
