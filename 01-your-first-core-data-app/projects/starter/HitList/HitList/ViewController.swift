@@ -13,10 +13,24 @@ class ViewController: UIViewController {
     
     private var people = [NSManagedObject]()
     
+    private var persistentContainer: NSPersistentContainer {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        return appDelegate.persistentContainer
+    }
+    
+    private var context: NSManagedObjectContext {
+        return persistentContainer.viewContext
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "The List"
         tableView.registerClass(UITableViewCell.self)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        loadPeople() { self.tableView.reloadData() }
     }
 
     @IBAction func addName(_ sender: Any) {
@@ -35,9 +49,6 @@ class ViewController: UIViewController {
     }
     
     private func save(_ name: String, completion: () -> Void) {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
-        let container = appDelegate.persistentContainer
-        let context = container.viewContext
         guard let entity = NSEntityDescription.entity(forEntityName: "Person", in: context) else { return }
         let person = NSManagedObject(entity: entity, insertInto: context)
         person.setValue(name, forKey: "name")
@@ -47,6 +58,16 @@ class ViewController: UIViewController {
             completion()
         } catch {
             print("Save with error: \(error.localizedDescription)")
+        }
+    }
+    
+    private func loadPeople(completion: () -> Void) {
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Person")
+        do {
+            people = try context.fetch(fetchRequest)
+            completion()
+        } catch {
+            print("Load people with error: \(error.localizedDescription)")
         }
     }
 }
