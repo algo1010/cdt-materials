@@ -6,11 +6,12 @@
 //
 
 import UIKit
+import CoreData
 
 class ViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     
-    private var names = [String]()
+    private var people = [NSManagedObject]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,8 +23,7 @@ class ViewController: UIViewController {
         let alert = UIAlertController(title: "New Name", message: "Add a new name", preferredStyle: .alert)
         let saveAction = UIAlertAction(title: "Save", style: .default) {[unowned self] action in
             guard let name = alert.textFields?.first?.text else { return }
-            self.names.append(name)
-            self.tableView.reloadData()
+            self.save(name) { self.tableView.reloadData() }
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         
@@ -33,16 +33,33 @@ class ViewController: UIViewController {
         
         present(alert, animated: true)
     }
+    
+    private func save(_ name: String, completion: () -> Void) {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let container = appDelegate.persistentContainer
+        let context = container.viewContext
+        guard let entity = NSEntityDescription.entity(forEntityName: "Person", in: context) else { return }
+        let person = NSManagedObject(entity: entity, insertInto: context)
+        person.setValue(name, forKey: "name")
+        do {
+            try context.save()
+            people.append(person)
+            completion()
+        } catch {
+            print("Save with error: \(error.localizedDescription)")
+        }
+    }
 }
 
 extension ViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return names.count
+        return people.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(UITableViewCell.self)
-        cell.textLabel?.text = names[indexPath.row]
+        let person = people[indexPath.row]
+        cell.textLabel?.text = person.valueForKey("name")
         return cell
     }
 }
@@ -61,6 +78,12 @@ extension UITableView {
     func dequeueReusableCell<T: UITableViewCell>(_ type: T.Type) -> T {
         let className = String(describing: type)
         return dequeueReusableCell(withIdentifier: className) as! T
+    }
+}
+
+extension NSManagedObject {
+    func valueForKey<T>(_ key: String) -> T? {
+        return value(forKey: key) as? T
     }
 }
 
