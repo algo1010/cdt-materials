@@ -42,17 +42,78 @@ class ViewController: UIViewController {
 
   // MARK: - IBOutlets
   @IBOutlet weak var tableView: UITableView!
+  
+  var venueFetchRequest: NSFetchRequest<Venue>?
+  var venues: [Venue] = []
+  
+  var asyncFetchRequest: NSAsynchronousFetchRequest<Venue>?
 
   // MARK: - View Life Cycle
   override func viewDidLoad() {
     super.viewDidLoad()
 
     importJSONSeedDataIfNeeded()
+    initVenueFetchRequest()
+    fetchAndReload()
+    favoriteAllVenues()
   }
 
   // MARK: - Navigation
   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    if segue.identifier == filterViewControllerSegueIdentifier {
+    guard segue.identifier == filterViewControllerSegueIdentifier,
+          let navController = segue.destination as? UINavigationController,
+          let filterVC = navController.topViewController as? FilterViewController
+    else { return }
+    filterVC.coreDataStack = coreDataStack
+    filterVC.delegate = self
+  }
+  
+  private func initVenueFetchRequest() {
+    // Because fetch request load from data model is immutable
+    // So I will create fetch request in code
+//    guard let model = coreDataStack.managedContext.persistentStoreCoordinator?.managedObjectModel,
+//          let venueFetchRequestTemplate = model.fetchRequestTemplate(forName: "FetchAllVenueTemplate") as? NSFetchRequest<Venue>
+//    else { return }
+    self.venueFetchRequest = Venue.fetchRequest()
+  }
+  
+  private func fetchAndReload() {
+//    guard let venueFetchRequest = venueFetchRequest else { return }
+//    do {
+//      venues = try coreDataStack.managedContext.fetch(venueFetchRequest)
+//      tableView.reloadData()
+//    } catch {
+//      print("Fetch venues with error: \(error.localizedDescription)")
+//    }
+    
+    guard let venueFetchRequest = venueFetchRequest else { return }
+    asyncFetchRequest = NSAsynchronousFetchRequest<Venue>(fetchRequest: venueFetchRequest, completionBlock: { [unowned self] result in
+      guard let venues = result.finalResult else { return }
+      
+      self.venues = venues
+      self.tableView.reloadData()
+    })
+    
+    guard let asyncFetchRequest = asyncFetchRequest else { return }
+    
+    do {
+      try coreDataStack.managedContext.execute(asyncFetchRequest)
+    } catch {
+      print("Fetch venues with error: \(error.localizedDescription)")
+    }
+  }
+  
+  private func favoriteAllVenues() {
+    let batchUpdateRequest = NSBatchUpdateRequest(entityName: "Venue")
+    batchUpdateRequest.propertiesToUpdate = [#keyPath(Venue.favorite) : true]
+    batchUpdateRequest.affectedStores = coreDataStack.managedContext.persistentStoreCoordinator?.persistentStores
+    batchUpdateRequest.resultType = .updatedObjectsCountResultType
+    
+    do {
+      let result = try coreDataStack.managedContext.execute(batchUpdateRequest) as! NSBatchUpdateResult
+      print("Records updated \(result.result!)")
+    } catch {
+      print("Favorite all venues with error: \(error.localizedDescription)")
     }
   }
 }
@@ -66,13 +127,14 @@ extension ViewController {
 // MARK: - UITableViewDataSource
 extension ViewController: UITableViewDataSource {
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    10
+    return venues.count
   }
 
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: venueCellIdentifier, for: indexPath)
-    cell.textLabel?.text = "Bubble Tea Venue"
-    cell.detailTextLabel?.text = "Price Info"
+    let venue = venues[indexPath.row]
+    cell.textLabel?.text = venue.name
+    cell.detailTextLabel?.text = venue.priceInfo?.priceCategory
     return cell
   }
 }
@@ -146,5 +208,20 @@ extension ViewController {
     }
 
     coreDataStack.saveContext()
+  }
+}
+
+extension ViewController: FilterViewControllerDelegate {
+  func filterViewController(filter: FilterViewController, didSelectPredicate predicate: NSPredicate?, sortDescriptor: NSSortDescriptor?) {
+    guard let venueFetchRequest = venueFetchRequest else { return }
+    venueFetchRequest.predicate = nil
+    venueFetchRequest.sortDescriptors = nil
+    
+    venueFetchRequest.predicate = predicate
+    if let sortDescriptor = sortDescriptor {
+      venueFetchRequest.sortDescriptors = [sortDescriptor]
+    }
+    
+    fetchAndReload()
   }
 }
